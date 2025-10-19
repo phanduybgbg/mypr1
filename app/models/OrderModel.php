@@ -87,6 +87,12 @@ class OrderModel extends BaseModel
 
     function getAllOrder()
     {
+        if (isset(ViewShare::$dataShare['userData'])) {
+            $userId = ViewShare::$dataShare['userData']['user_id'];
+            if (ViewShare::$dataShare['userData']['role_id'] == 2) {
+                return $this->db->table('orders o')->select('o.id AS order_id, o.user_id, o.order_code, o.total_money, o.order_date, pd.display_name AS payment_method_name, os.name AS order_status_name, o.order_status_id, u.fullname')->join('payment p', 'p.order_id = o.id')->join('payment_method pd', 'pd.id = p.payment_method_id')->join('user u', 'o.user_id = u.id')->join('order_status os', 'os.id = o.order_status_id')->join('order_item ot', 'ot.order_id = o.id')->where('ot.vendor_id', '=', $userId)->orderBy('o.order_date')->get();
+            }
+        }
         return $this->db->table('orders o')->select('o.id AS order_id, o.user_id, o.order_code, o.total_money, o.order_date, pd.display_name AS payment_method_name, os.name AS order_status_name, o.order_status_id, u.fullname')->join('payment p', 'p.order_id = o.id')->join('payment_method pd', 'pd.id = p.payment_method_id')->join('user u', 'o.user_id = u.id')->join('order_status os', 'os.id = o.order_status_id')->orderBy('o.order_date')->get();
     }
 
@@ -97,13 +103,11 @@ class OrderModel extends BaseModel
 
     function getOderItem($order_id)
     {
-
         return $this->db->table('order_item')->where('order_id', '=', $order_id)->get();
     }
 
     function addNewOrder($data)
     {
-        // ->select('o.id, o.order_code, o.total_money, os.id AS order_status_id, os.name, o.order_date, pd.display_name')
         return $this->db->create($this->tableName(), $data);
     }
 

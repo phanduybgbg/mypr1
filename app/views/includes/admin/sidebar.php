@@ -1,3 +1,5 @@
+<?php $role = $userData['role_id']; ?>
+
 <section class="sidebar-wrapper">
     <div class="top-fixed-sidebar">
         <div class="logo-wrapper">
@@ -9,14 +11,14 @@
     <nav class="sidebar-main">
         <div class="sidebar-menu">
             <ul class="sidebar-links">
-                <li class="sidebar-list <?= $active == 'dashboard' ? 'active' : '' ?>">
-                    <a class="sidebar-list-link " href="admin/dashboard">
-                        <i class="fas fa-th-large"></i>
-                        <span>Bảng điều khiển</span>
-                    </a>
-                </li>
-
-
+                <?php if ($role == 1): ?>
+                    <li class="sidebar-list <?= $active == 'dashboard' ? 'active' : '' ?>">
+                        <a class="sidebar-list-link " href="admin/dashboard">
+                            <i class="fas fa-th-large"></i>
+                            <span>Bảng điều khiển</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
 
                 <li class="sidebar-list <?= $active == 'product' ? 'active' : '' ?>">
                     <a class="sidebar-list-link " href="javascript:void(0)">
@@ -41,14 +43,16 @@
                             <i class="fas fa-minus"></i>
                             <a href="admin/attributes">Thuộc tính</a>
                         </li>
-                        <li>
-                            <i class="fas fa-minus"></i>
-                            <a href="admin/coupon">Mã giảm giá</a>
-                        </li>
-                        <li>
-                            <i class="fas fa-minus"></i>
-                            <a href="admin/payment-method">Hình thức thanh toán</a>
-                        </li>
+                        <?php if ($role == 1): ?>
+                            <li>
+                                <i class="fas fa-minus"></i>
+                                <a href="admin/coupon">Mã giảm giá</a>
+                            </li>
+                            <li>
+                                <i class="fas fa-minus"></i>
+                                <a href="admin/payment-method">Hình thức thanh toán</a>
+                            </li>
+                        <?php endif; ?>
                     </ul>
                 </li>
 
@@ -67,36 +71,36 @@
                 </li>
 
 
+                <?php if ($role == 1): ?>
+                    <li class="sidebar-list <?= $active == 'user' ? 'active' : '' ?>">
+                        <a class="sidebar-list-link " href="admin/user">
+                            <i class="fas fa-user-friends"></i>
+                            <span>Người dùng</span>
+                        </a>
+                    </li>
 
-                <li class="sidebar-list <?= $active == 'user' ? 'active' : '' ?>">
-                    <a class="sidebar-list-link " href="admin/user">
-                        <i class="fas fa-user-friends"></i>
-                        <span>Người dùng</span>
-                    </a>
-                </li>
+                    <li class="sidebar-list <?= $active == 'role' ? 'active' : '' ?>">
+                        <a class="sidebar-list-link " href="admin/role">
+                            <i class="fas fa-user"></i>
+                            <span>Vai trò</span>
+                        </a>
+                    </li>
 
-                <li class="sidebar-list <?= $active == 'role' ? 'active' : '' ?>">
-                    <a class="sidebar-list-link " href="admin/role">
-                        <i class="fas fa-user"></i>
-                        <span>Vai trò</span>
-                    </a>
-                </li>
+                    <li class="sidebar-list <?= $active == 'news' ? 'active' : '' ?>">
+                        <a class="sidebar-list-link " href="admin/news">
+                            <i class="fas fa-newspaper"></i>
+                            <span>Tin tức</span>
+                        </a>
+                    </li>
 
-                <li class="sidebar-list <?= $active == 'news' ? 'active' : '' ?>">
-                    <a class="sidebar-list-link " href="admin/news">
-                        <i class="fas fa-newspaper"></i>
-                        <span>Tin tức</span>
-                    </a>
-                </li>
-
-                <!--  -->
-                <li class="sidebar-list <?= $active == 'storeCustom' ? 'active' : '' ?>">
-                    <a class="sidebar-list-link " href="admin/store-custom">
-                        <i class="fab fa-centos"></i>
-                        <span>Tuỳ chỉnh cửa hàng</span>
-                    </a>
-                </li>
-
+                    <!--  -->
+                    <li class="sidebar-list <?= $active == 'storeCustom' ? 'active' : '' ?>">
+                        <a class="sidebar-list-link " href="admin/store-custom">
+                            <i class="fab fa-centos"></i>
+                            <span>Tuỳ chỉnh cửa hàng</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
 
             </ul>
         </div>

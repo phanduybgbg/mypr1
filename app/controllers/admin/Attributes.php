@@ -85,6 +85,7 @@ class Attributes extends Controller
         $dataInsert = [
             'name' => $dataPost['name'],
             'display_name' => $dataPost['display_name'],
+            'user_id' => $dataPost['user_id'] ?? null,
         ];
 
         $createAttribute = $this->attributeModel->addNameAttribute($dataInsert);

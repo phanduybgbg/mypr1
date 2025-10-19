@@ -262,6 +262,7 @@ class Checkout extends Controller
         $order_id = $this->db->lastInsertId();
 
         foreach ($dataCartNew as $orderItem) {
+            $product = $this->db->table('product')->select('user_id')->where('id', '=', $orderItem['product_id'])->getOne();
 
             $createOrderItem = $this->orderModel->addNewOrderItem([
                 'order_id' => $order_id,
@@ -269,6 +270,7 @@ class Checkout extends Controller
                 'price' => $orderItem['price'],
                 'quantity' => $orderItem['quantity'],
                 'total_money' => $orderItem['price'] * $orderItem['quantity'],
+                'vendor_id' => $product['user_id'] ?? null,
             ]);
 
             //Them vao order item

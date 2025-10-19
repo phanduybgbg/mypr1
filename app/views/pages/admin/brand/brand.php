@@ -1,9 +1,4 @@
-<?php
-
-// echo '<pre>';
-// print_r($dataBrand);
-// echo '</pre>';
-?>
+<?php $role = $userData['role_id']; ?>
 
 <section class="product-wrap">
     <div class="card">
@@ -111,6 +106,9 @@
                 </button>
             </div>
             <form action="admin/brand/addBrand" method="POST">
+                <?php if ($role == 2): ?>
+                    <input type="hidden" name="user_id" value="<?php echo $userData['user_id']; ?>">
+                <?php endif; ?>
                 <div class="modal-body add-wrap-admin">
                     <div class="form-input">
                         <div class="mb-5 row align-items-center">
@@ -145,6 +143,9 @@
                 </button>
             </div>
             <form action="admin/brand/updateBrand" method="POST">
+                <?php if ($role == 2): ?>
+                    <input type="hidden" name="user_id" value="<?php echo $userData['user_id']; ?>">
+                <?php endif; ?>
                 <div class="modal-body add-wrap-admin">
                     <div class="form-input">
                         <div class="mb-5 row align-items-center">

@@ -86,7 +86,8 @@ class Category extends Controller
 
         $dataInsert = [
             'name' => $dataPost['name'],
-            'image' => $imageName['success']
+            'image' => $imageName['success'],
+            'user_id' => $dataPost['user_id'] ?? null,
         ];
 
         $createCategory = $this->categoryModel->addNewCategory($dataInsert);

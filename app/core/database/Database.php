@@ -216,4 +216,35 @@ class Database
 
         return $this->conn->lastInsertId();
     }
+    public function beginTransaction()
+    {
+        if ($this->conn instanceof PDO) {
+            return $this->conn->beginTransaction();
+        }
+        throw new Exception("PDO connection not initialized");
+    }
+
+    public function commit()
+    {
+        if ($this->conn instanceof PDO) {
+            return $this->conn->commit();
+        }
+        throw new Exception("PDO connection not initialized");
+    }
+
+    public function rollBack()
+    {
+        if ($this->conn instanceof PDO && $this->conn->inTransaction()) {
+            return $this->conn->rollBack();
+        }
+        return false;
+    }
+
+    public function inTransaction()
+    {
+        if ($this->conn instanceof PDO) {
+            return $this->conn->inTransaction();
+        }
+        return false;
+    }
 }

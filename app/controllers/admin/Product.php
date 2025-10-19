@@ -109,19 +109,18 @@ class Product extends Controller
         $attributeData = $this->attributeModel->getAllAttribute() ?? [];
         $attributeValueData = $this->attributeModel->getAllAttributeValue() ?? [];
 
-
         $dataValueOld = [];
         if (!$this->req->isPost()) {
             return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
         }
+
         $dataPost = $this->req->getFields();
         $dataValueOld = $dataPost;
 
-        //Get image
         $image = $_FILES['images'] ?? '';
         $thumb = $_FILES['thumb'] ?? '';
 
-        //Set rule
+        // Rule & Message
         $this->req->rules([
             'title' => 'required',
             'cate_id' => 'required',
@@ -129,8 +128,6 @@ class Product extends Controller
             'quantity' => 'required',
             'price' => 'required',
         ]);
-
-        // Set message
         $this->req->message([
             'title.required' => 'Vui lòng không để trống tên sản phẩm.',
             'cate_id.required' => 'Vui lòng không để trống danh mục.',
@@ -138,22 +135,18 @@ class Product extends Controller
             'quantity.required' => 'Vui lòng không để trống số lượng.',
             'price.required' => 'Vui lòng không để trống giá.',
         ]);
-
-        //Bat dau validate
         $this->req->validate();
         $dataError = $this->req->errors();
-        // Neu co loi validate se hien loi
+
         if (!empty($dataError)) {
             $this->Toast('error', reset($dataError));
             return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
         }
 
-
         if (empty($image['name'][0]) || empty($thumb['name'])) {
             $this->Toast('error', 'Vui lòng không để trống ảnh.');
             return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
         }
-
 
         $dataInsertProd = [
             'title' => $dataPost['title'],
@@ -165,202 +158,144 @@ class Product extends Controller
             'status' => $dataPost['status'] ?? 0,
             'short_description' => $dataPost['short_description'] ?? '',
             'description' => $dataPost['description'] ?? '',
-            'isVariant' => isset($dataPost['attribute']) ? 1 : 0, //Trang thai co bien the hay khong
+            'isVariant' => isset($dataPost['attribute']) ? 1 : 0,
+            'user_id' => $dataPost['user_id'] ?? $this->user_id,
         ];
 
-
-        //Kiem tra co gia sale hay khong
-
         if (!empty($dataPost['sale_price'])) {
-            // Kiem tra gia sale phai nho hon gia
             if ($dataPost['sale_price'] >= $dataPost['price']) {
                 $this->Toast('error', 'Giá sale phải nhỏ hơn giá.');
                 return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
             }
-
             $discount = round((($dataPost['price'] - $dataPost['sale_price']) / $dataPost['price']) * 100, 0);
-            $dataUpdateProd['discount'] = $discount;
-            $dataUpdateProd['price'] = $dataPost['sale_price'];
+            $dataInsertProd['discount'] = $discount;
+            $dataInsertProd['price'] = $dataPost['sale_price'];
         }
 
-
-        //  validate Upload image thumb
         if (!Format::validateUploadImage($thumb)) {
             $this->Toast('error', 'Kiểm tra lại file upload.');
             return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
         }
 
-        //upload anh len cloud
-        $urlThumb = Services::uploadImageToCloudinary($thumb['tmp_name']);
-        if (empty($urlThumb)) {
-            $this->Toast('error', 'Upload ảnh thất bại.');
-            return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
-        }
+        // ---- BẮT ĐẦU TRANSACTION ----
+        $this->db->beginTransaction();
 
-        $dataInsertProd['thumb'] = $urlThumb;
+        try {
+            // Upload ảnh thumb
+            $urlThumb = Services::uploadImageToCloudinary($thumb['tmp_name']);
+            if (empty($urlThumb)) throw new Exception('Upload ảnh thumb thất bại.');
+            $dataInsertProd['thumb'] = $urlThumb;
 
-        //Lay ra id sau khi tai san pham 
-        $prod_id = $this->productModel->addNewProduct($dataInsertProd);
+            // Insert product
+            $prod_id = $this->productModel->addNewProduct($dataInsertProd);
+            if (empty($prod_id)) throw new Exception('Có lỗi khi thêm sản phẩm, vui lòng thử lại.');
 
-        if (empty($prod_id)) {
-            $this->Toast('error', 'Có lỗi khi thêm sản phẩm vui lòng thử lại.');
-            return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
-        }
-
-
-        //Kiem tra co bien the hay khong
-        if (isset($dataPost['attribute']) && !empty($dataPost['attribute'][0])) {
-
-            //Check bat buoc phai nhap cac truong 
-            if (empty($dataPost['quantity_variant'][0]) || empty($dataPost['price_variant'][0])) {
-                $this->Toast('error', 'Vui lòng không để trống biến thế.');
-                return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
-            }
-
-            //  Mang id attribute va id attribute_value
-            $dataAttributeId = [];
-
-            foreach ($dataPost['attribute'] as $attributeItem) {
-                //Tach mang 
-                $dataAttributeArr = explode(',', $attributeItem);
-
-                foreach ($dataAttributeArr as $dataAttributeItem) {
-                    //id dau tien la attribute
-                    //id thu 2 la attribute_value
-                    $attributeIdArr = explode('-', $dataAttributeItem);
-                    $dataAttributeId[] = $attributeIdArr;
+            // --- Nếu có biến thể ---
+            if (isset($dataPost['attribute']) && !empty($dataPost['attribute'][0])) {
+                if (empty($dataPost['quantity_variant'][0]) || empty($dataPost['price_variant'][0])) {
+                    throw new Exception('Vui lòng không để trống biến thể.');
                 }
-            }
 
-            //dataInsert of product_variants
-            $dataInsertVariants = [];
-
-
-            foreach ($dataPost['quantity_variant'] as $keyVariant => $quantity_variant) {
-                $dataInsertVariants[] = [
-                    'prod_id' => $prod_id,
-                    'quantity' => $quantity_variant,
-                    'price' => $dataPost['price_variant'][$keyVariant],
-                    'discount' => 0,
-                ];
-
-                // Kiem tra co gia sale hay khong
-                if (!empty($dataPost['sale_price_variant'][$keyVariant])) {
-                    // Kiem tra gia sale phai nho hon gia 
-                    if ($dataPost['sale_price_variant'][$keyVariant] >= $dataPost['price_variant'][$keyVariant]) {
-                        $this->Toast('error', 'Giá sale phải nhỏ hơn giá.');
-                        return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
+                // Tách dữ liệu attribute
+                $dataAttributeId = [];
+                foreach ($dataPost['attribute'] as $attributeItem) {
+                    $dataAttributeArr = explode(',', $attributeItem);
+                    foreach ($dataAttributeArr as $dataAttributeItem) {
+                        $attributeIdArr = explode('-', $dataAttributeItem);
+                        $dataAttributeId[] = $attributeIdArr;
                     }
+                }
 
-                    $discountVariant = round((($dataPost['price_variant'][$keyVariant] - $dataPost['sale_price_variant'][$keyVariant]) / $dataPost['price_variant'][$keyVariant]) * 100, 0);
+                // Chuẩn bị insert vào product_variants
+                $dataInsertVariants = [];
+                foreach ($dataPost['quantity_variant'] as $keyVariant => $quantity_variant) {
+                    $dataInsertVariants[] = [
+                        'prod_id' => $prod_id,
+                        'quantity' => $quantity_variant,
+                        'price' => $dataPost['price_variant'][$keyVariant],
+                        'discount' => 0,
+                    ];
 
-                    $dataInsertVariants[$keyVariant]['price'] = $dataPost['sale_price_variant'][$keyVariant];
-                    $dataInsertVariants[$keyVariant]['discount'] = $discountVariant;
+                    if (!empty($dataPost['sale_price_variant'][$keyVariant])) {
+                        if ($dataPost['sale_price_variant'][$keyVariant] >= $dataPost['price_variant'][$keyVariant]) {
+                            throw new Exception('Giá sale phải nhỏ hơn giá gốc của biến thể.');
+                        }
+
+                        $discountVariant = round((($dataPost['price_variant'][$keyVariant] - $dataPost['sale_price_variant'][$keyVariant]) / $dataPost['price_variant'][$keyVariant]) * 100, 0);
+                        $dataInsertVariants[$keyVariant]['price'] = $dataPost['sale_price_variant'][$keyVariant];
+                        $dataInsertVariants[$keyVariant]['discount'] = $discountVariant;
+                    }
+                }
+
+                // Insert biến thể
+                $prodVariantIdArr = [];
+                foreach ($dataInsertVariants as $dataInsertVariant) {
+                    $createProductVariant = $this->db->create('product_variants', $dataInsertVariant);
+                    if (!$createProductVariant) throw new Exception('Không thể thêm biến thể sản phẩm.');
+                    $prodVariantIdArr[] = $this->db->lastInsertId();
+                }
+
+                if (empty($prodVariantIdArr)) throw new Exception('Không thể tạo biến thể.');
+
+                // Insert variant_values
+                $dataInsertVariantValue = [];
+                foreach ($prodVariantIdArr as $value) {
+                    for ($i = 0; $i < count($dataAttributeArr); $i++) {
+                        $dataInsertVariantValue[] = array_merge([$value], $dataAttributeId[$i]);
+                    }
+                    $dataAttributeId = array_slice($dataAttributeId, count($dataAttributeArr));
+                }
+
+                if (empty($dataInsertVariantValue)) throw new Exception('Không thể tạo giá trị biến thể.');
+
+                foreach ($dataInsertVariantValue as $dataInsertVariantValueItem) {
+                    $insertVariantValue = $this->db->create('variants_value', [
+                        'product_variant_id' => $dataInsertVariantValueItem[0],
+                        'attribute_id' => $dataInsertVariantValueItem[1],
+                        'attribute_value_id' => $dataInsertVariantValueItem[2],
+                    ]);
+
+                    if (!$insertVariantValue) throw new Exception('Không thể lưu giá trị biến thể.');
                 }
             }
 
+            // --- Upload nhiều ảnh sản phẩm ---
+            $urlUploadImages = [];
+            foreach ($image['tmp_name'] as $key => $tmpName) {
+                $type = $image['type'][$key];
+                $size = $image['size'][$key];
+                $maxFileSize = 5000000;
+                $allowTypes = ['image/jpg', 'image/png', 'image/jpeg', 'image/webp'];
 
-            //id product_variants sau khi insert
-            $prodVariantIdArr =  [];
-            foreach ($dataInsertVariants as $dataInsertVariant) {
-                //Them vao product_variant
-                $createProductVariant = $this->db->create('product_variants', $dataInsertVariant);
+                if ($size > $maxFileSize) throw new Exception('Dung lượng file vượt quá 5MB.');
+                if (!in_array($type, $allowTypes)) throw new Exception('Định dạng ảnh không hợp lệ.');
 
-                //Kiem tra loi sau khi them
-                if (!$createProductVariant) {
-                    $this->Toast('error', 'Có lỗi liên quan đến biến thể.');
-                    return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
-                }
-                //Lay ra id của bang vua nhap them vao mang
-                $prod_variant_id = $this->db->lastInsertId();
-                $prodVariantIdArr[] = $prod_variant_id;
-            }
+                $urlImage = Services::uploadImageToCloudinary($tmpName);
+                if (empty($urlImage)) throw new Exception('Upload ảnh sản phẩm thất bại.');
 
-
-            if (empty($prodVariantIdArr)) {
-                $this->Toast('error', 'Có lỗi liên quan đến biến thể.');
-                return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
-            }
-
-            //dataInsert of variant_values
-            $dataInsertVariantValue = [];
-
-            //Lap qua id cua  bien the san pham de gan gia tri vao mang de insert
-            foreach ($prodVariantIdArr as $value) {
-                // Lặp giá trị một vào ba phần tử đầu tiên 
-                for ($i = 0; $i < count($dataAttributeArr); $i++) {
-                    $dataInsertVariantValue[] = array_merge([$value], $dataAttributeId[$i]);
-                }
-                $dataAttributeId = array_slice($dataAttributeId, count($dataAttributeArr));
-            }
-
-            if (empty($dataInsertVariantValue)) {
-                $this->Toast('error', 'Có lỗi liên quan đến biến thể.');
-                return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
-            }
-
-            //Them vao bang variant value
-
-            foreach ($dataInsertVariantValue as $dataInsertVariantValueItem) {
-                $insertVariantValue = $this->db->create('variants_value', [
-                    'product_variant_id' => $dataInsertVariantValueItem[0],
-                    'attribute_id' => $dataInsertVariantValueItem[1],
-                    'attribute_value_id' => $dataInsertVariantValueItem[2],
-                ]);
-
-                if (empty($insertVariantValue)) {
-                    $this->Toast('error', 'Có lỗi liên quan đến biến thể.');
-                    return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
-                }
-            }
-        }
-
-        //  validate Upload image image
-        $urlUploadImages = [];
-        foreach ($image['tmp_name'] as $key => $name) {
-            $type = $image['type'][$key];
-            $size = $image['size'][$key];
-            $maxFileSize = 5000000;
-            $allowTypes = array('image/jpg', 'image/png', 'image/jpeg', 'image/webp');
-
-            if ($size > $maxFileSize) {
-                // Kiem tra dung luong file
-                $this->Toast('error', 'Dung lượng file < 5MB.');
-                return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
-            } elseif (!in_array($type, $allowTypes)) {
-                // Kiem tra loai file
-                $this->Toast('error', 'Đuôi file phải đúng quy định.');
-                return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
-            } else {
-                //Upload file len cloud
-                $urlImage =  Services::uploadImageToCloudinary($name);
-
-                if (empty($urlImage)) {
-                    $this->Toast('error', 'Upload ảnh thất bại.');
-                    return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
-                }
-                //Gan cac link image vao mang
                 $urlUploadImages[] = $urlImage;
             }
-        }
 
-        //bat dau upload anh len database
-        foreach ($urlUploadImages as $urlUploadImage) {
-
-            $uploadImage = $this->db->create('images_product', [
-                'prod_id' => $prod_id,
-                'image' => $urlUploadImage,
-            ]);
-
-            if (!$uploadImage) {
-                $this->Toast('error', 'Upload ảnh thất bại.');
-                return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
+            foreach ($urlUploadImages as $urlUploadImage) {
+                $uploadImage = $this->db->create('images_product', [
+                    'prod_id' => $prod_id,
+                    'image' => $urlUploadImage,
+                ]);
+                if (!$uploadImage) throw new Exception('Không thể lưu ảnh sản phẩm.');
             }
-        }
 
-        // Thanh cong se sang trang danh sach san pham
-        return $this->res->setToastSession('success', 'Thêm sản phẩm thành công.', 'admin/product');
+            // --- Thành công ---
+            $this->db->commit();
+            return $this->res->setToastSession('success', 'Thêm sản phẩm thành công.', 'admin/product');
+        } catch (Exception $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            $this->Toast('error', $e->getMessage());
+            return $this->renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld);
+        }
     }
+
     private function renderAddPage($cateData, $brandData, $attributeData, $attributeValueData, $dataValueOld = [])
     {
         $this->view('layoutServer', [

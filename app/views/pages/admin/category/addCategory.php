@@ -1,11 +1,10 @@
-<?php
-// echo '<pre>';
-// print_r($dataValueOld);
-// echo '</pre>';
-?>
+<?php $role = $userData['role_id']; ?>
 <section class="add-wrap-admin">
     <div class="container-fluid ">
         <form method="POST" enctype="multipart/form-data">
+            <?php if ($role == 2): ?>
+                <input type="hidden" name="user_id" value="<?php echo $userData['user_id']; ?>">
+            <?php endif; ?>
             <div class="row">
                 <div class="col-sm-8 m-auto ">
                     <div class="card">

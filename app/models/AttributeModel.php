@@ -17,6 +17,12 @@ class AttributeModel extends BaseModel
     }
     function getAllAttribute()
     {
+        if (isset(ViewShare::$dataShare['userData'])) {
+            if (ViewShare::$dataShare['userData']['role_id'] == 2) {
+                $data = $this->db->table($this->tableName())->where('user_id', '=', ViewShare::$dataShare['userData']['user_id'])->orderBy('id')->get();
+                return $data;
+            }
+        }
         return $this->db->table($this->tableName())->get();
     }
 

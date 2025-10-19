@@ -17,6 +17,9 @@ class BrandModel extends BaseModel
     }
     function getAllBrand()
     {
+        if (isset(ViewShare::$dataShare['userData']) && ViewShare::$dataShare['userData']['role_id'] == 2) {
+            return $this->db->table($this->tableName())->where('user_id', '=', ViewShare::$dataShare['userData']['user_id'])->orderBy('id', 'ASC')->get();
+        }
         return $this->db->table($this->tableName())->orderBy('id', 'ASC')->get();
     }
 

@@ -46,7 +46,11 @@ class Brand extends Controller
             $this->ToastSession($toastMessage, $toastType);
         }
 
-        $dataBrand = $this->brandModel->getAllBrand();
+        try {
+            $dataBrand = $this->brandModel->getAllBrand();
+        } catch (\Throwable $th) {
+            die($th->getMessage());
+        }
 
         $this->view('layoutServer', [
             'active' => 'brand',
@@ -82,7 +86,8 @@ class Brand extends Controller
         }
 
         $dataInsert = [
-            'name' => $dataPost['name']
+            'name' => $dataPost['name'],
+            'user_id' => $dataPost['user_id'] ?? null,
         ];
 
         $success = $this->brandModel->addNewBrand($dataInsert);

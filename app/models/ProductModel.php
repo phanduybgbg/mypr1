@@ -98,6 +98,12 @@ class ProductModel extends BaseModel
 
     function getAllProduct()
     {
+        if (isset(ViewShare::$dataShare['userData'])) {
+            if (ViewShare::$dataShare['userData']['role_id'] == 2) {
+                $data = $this->db->table($this->tableName())->where('user_id', '=', ViewShare::$dataShare['userData']['user_id'])->orderBy('id')->get();
+                return $data;
+            }
+        }
         $data = $this->db->table($this->tableName())->orderBy('id')->get();
         return $data;
     }

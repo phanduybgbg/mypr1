@@ -208,9 +208,10 @@ class Account extends Controller
             //Update token
             if ($this->userModel->updateToken($isEmailExisted['id'], $dataToken)) {
                 Session::set('userLogin', $accessToken);
+                Session::set('userData', $userData);
                 Cookie::set('keepLogin', $refreshToken, 7 * 24 * 3600);
 
-                $redirectUrl = ($isEmailExisted['role_id'] == 1) ? 'admin/DashBoard' : 'home';
+                $redirectUrl = ($isEmailExisted['role_id'] == 1 || $isEmailExisted['role_id'] == 2) ? 'admin/DashBoard' : 'home';
                 $this->Alert('Đăng nhập thành công.', 'success', $redirectUrl, 1200);
                 return $this->renderLoginPage($dataValueOld);
             } else {
