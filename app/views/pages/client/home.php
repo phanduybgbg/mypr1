@@ -9,9 +9,9 @@
         <div class="row align-items-center">
             <div class="col-lg-6 col-xl-6 pr--80">
                 <div>
-                    <span class="title-highlighter highlighter-secondary"> <i class="fas fa-fire"></i><?= $dataBannerTitle['title'] ?></span>
+                    <span class="title-highlighter highlighter-secondary"> <i class="fas fa-fire"></i><?= $dataBannerTitle['title'] ?? '' ?></span>
 
-                    <h1 class="title"><?= $dataBannerTitle['description'] ?></h1>
+                    <h1 class="title"><?= $dataBannerTitle['description'] ?? '' ?></h1>
 
                     <div class="shop-btn">
                         <a href="product-category?category=<?= $dataBannerTitle['cate_id'] ?>" class="btn btn-bg-white right-icon">Khám phá <i class="fal fa-long-arrow-right"></i></a>

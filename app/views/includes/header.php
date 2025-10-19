@@ -102,7 +102,7 @@ $menu = array(
                                 </li>
                             </ul>
                             <div class="login-btn">
-                                <a href="<?= (isset($userData) && !empty($userData)) ? 'Logout' : 'Login' ?>" class="btn-custom">
+                                <a href="<?= (isset($userData) && !empty($userData)) ? 'logout' : 'login' ?>" class="btn-custom">
                                     <?= (isset($userData) && !empty($userData)) ? 'Đăng xuất' : 'Đăng nhập' ?>
                                 </a>
                             </div>

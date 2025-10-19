@@ -516,7 +516,7 @@ class Account extends Controller
     {
         Session::destroy();
         Cookie::unsetCookie('keepLogin');
-        header('location: //');
+        header('Location: http://localhost:8000');
     }
 
     function updateUserCurrent()

@@ -39,7 +39,7 @@
 
         <?php
         require_once 'app/views/includes/header.php';
-        $dataStoreCustom = ViewShare::$dataShare['dataStoreCustom'];
+        $dataStoreCustom = ViewShare::$dataShare['dataStoreCustom'] ?? '';
         //hide breadcumb
         if ($pages != 'product/detailProduct' && $pages != 'home' && $pages != 'checkout/checkout') {
             require_once 'app/views/includes/breadcumb.php';
