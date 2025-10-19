@@ -14,13 +14,8 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-
--- Dumping database structure for ecommerce_php
-CREATE DATABASE IF NOT EXISTS `ecommerce_php` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `ecommerce_php`;
-
 -- Dumping structure for table ecommerce_php.attribute
-CREATE TABLE IF NOT EXISTS `attribute` (
+CREATE TABLE  `attribute` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `display_name` varchar(255) NOT NULL,
@@ -31,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `attribute` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.attribute_value
-CREATE TABLE IF NOT EXISTS `attribute_value` (
+CREATE TABLE  `attribute_value` (
   `id` int NOT NULL AUTO_INCREMENT,
   `attribute_id` int NOT NULL,
   `value_name` varchar(50) NOT NULL,
@@ -43,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `attribute_value` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.banner
-CREATE TABLE IF NOT EXISTS `banner` (
+CREATE TABLE  `banner` (
   `id` int NOT NULL AUTO_INCREMENT,
   `title` varchar(50) NOT NULL,
   `description` varchar(255) NOT NULL,
@@ -56,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `banner` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.brand
-CREATE TABLE IF NOT EXISTS `brand` (
+CREATE TABLE  `brand` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `user_id` int DEFAULT NULL,
@@ -66,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `brand` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.cart
-CREATE TABLE IF NOT EXISTS `cart` (
+CREATE TABLE  `cart` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `totalPrice` int NOT NULL,
@@ -79,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `cart` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.cart_item
-CREATE TABLE IF NOT EXISTS `cart_item` (
+CREATE TABLE  `cart_item` (
   `id` int NOT NULL AUTO_INCREMENT,
   `product_variant_id` int NOT NULL,
   `quantity` smallint NOT NULL,
@@ -94,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `cart_item` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.category
-CREATE TABLE IF NOT EXISTS `category` (
+CREATE TABLE  `category` (
   `id` int NOT NULL AUTO_INCREMENT,
   `image` text NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -105,7 +100,7 @@ CREATE TABLE IF NOT EXISTS `category` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.coupon
-CREATE TABLE IF NOT EXISTS `coupon` (
+CREATE TABLE  `coupon` (
   `id` int NOT NULL AUTO_INCREMENT,
   `code` varchar(50) NOT NULL,
   `thumb` varchar(500) NOT NULL,
@@ -122,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `coupon` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.images_product
-CREATE TABLE IF NOT EXISTS `images_product` (
+CREATE TABLE  `images_product` (
   `id` int NOT NULL AUTO_INCREMENT,
   `image` text NOT NULL,
   `prod_id` int NOT NULL,
@@ -133,7 +128,7 @@ CREATE TABLE IF NOT EXISTS `images_product` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.news
-CREATE TABLE IF NOT EXISTS `news` (
+CREATE TABLE  `news` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `title` varchar(255) NOT NULL,
@@ -151,7 +146,7 @@ CREATE TABLE IF NOT EXISTS `news` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.orders
-CREATE TABLE IF NOT EXISTS `orders` (
+CREATE TABLE  `orders` (
   `id` int NOT NULL AUTO_INCREMENT,
   `order_code` varchar(50) NOT NULL,
   `user_id` int NOT NULL,
@@ -169,7 +164,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.order_item
-CREATE TABLE IF NOT EXISTS `order_item` (
+CREATE TABLE  `order_item` (
   `id` int NOT NULL AUTO_INCREMENT,
   `order_id` int NOT NULL,
   `product_variant_id` int NOT NULL,
@@ -187,7 +182,7 @@ CREATE TABLE IF NOT EXISTS `order_item` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.order_status
-CREATE TABLE IF NOT EXISTS `order_status` (
+CREATE TABLE  `order_status` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `description` varchar(50) NOT NULL,
@@ -197,7 +192,7 @@ CREATE TABLE IF NOT EXISTS `order_status` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.payment
-CREATE TABLE IF NOT EXISTS `payment` (
+CREATE TABLE  `payment` (
   `id` int NOT NULL AUTO_INCREMENT,
   `order_id` int NOT NULL,
   `payment_method_id` int NOT NULL,
@@ -210,7 +205,7 @@ CREATE TABLE IF NOT EXISTS `payment` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.payment_method
-CREATE TABLE IF NOT EXISTS `payment_method` (
+CREATE TABLE  `payment_method` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `display_name` varchar(50) NOT NULL,
@@ -223,7 +218,7 @@ CREATE TABLE IF NOT EXISTS `payment_method` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.payment_transactions
-CREATE TABLE IF NOT EXISTS `payment_transactions` (
+CREATE TABLE  `payment_transactions` (
   `id` int NOT NULL AUTO_INCREMENT,
   `bankCode` varchar(50) NOT NULL,
   `bankTranNo` varchar(50) NOT NULL,
@@ -237,7 +232,7 @@ CREATE TABLE IF NOT EXISTS `payment_transactions` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.product
-CREATE TABLE IF NOT EXISTS `product` (
+CREATE TABLE  `product` (
   `id` int NOT NULL AUTO_INCREMENT,
   `title` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `brand_id` int DEFAULT NULL,
@@ -265,7 +260,7 @@ CREATE TABLE IF NOT EXISTS `product` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.product_variants
-CREATE TABLE IF NOT EXISTS `product_variants` (
+CREATE TABLE  `product_variants` (
   `id` int NOT NULL AUTO_INCREMENT,
   `prod_id` int NOT NULL,
   `price` int NOT NULL,
@@ -278,7 +273,7 @@ CREATE TABLE IF NOT EXISTS `product_variants` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.ratings
-CREATE TABLE IF NOT EXISTS `ratings` (
+CREATE TABLE  `ratings` (
   `id` int NOT NULL AUTO_INCREMENT,
   `prod_id` int NOT NULL,
   `user_id` int NOT NULL,
@@ -295,7 +290,7 @@ CREATE TABLE IF NOT EXISTS `ratings` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.role
-CREATE TABLE IF NOT EXISTS `role` (
+CREATE TABLE  `role` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `description` varchar(50) NOT NULL,
@@ -305,7 +300,7 @@ CREATE TABLE IF NOT EXISTS `role` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.store_custom
-CREATE TABLE IF NOT EXISTS `store_custom` (
+CREATE TABLE  `store_custom` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `phone` varchar(12) NOT NULL,
@@ -321,7 +316,7 @@ CREATE TABLE IF NOT EXISTS `store_custom` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.user
-CREATE TABLE IF NOT EXISTS `user` (
+CREATE TABLE  `user` (
   `id` int NOT NULL AUTO_INCREMENT,
   `fullname` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
@@ -344,7 +339,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ecommerce_php.variants_value
-CREATE TABLE IF NOT EXISTS `variants_value` (
+CREATE TABLE  `variants_value` (
   `id` int NOT NULL AUTO_INCREMENT,
   `product_variant_id` int NOT NULL,
   `attribute_id` int NOT NULL,
